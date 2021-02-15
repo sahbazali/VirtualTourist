@@ -8,7 +8,7 @@
 import Foundation
 
 enum FlickrEndpoint: ApiProtocol {
-    case searchByLatLon(latitude: Double, longitude: Double)
+    case searchByLatLon(latitude: Double, longitude: Double, pageCount: Int)
     
     var apiKey: String {
         switch self {
@@ -37,7 +37,11 @@ enum FlickrEndpoint: ApiProtocol {
     
     var parameters: [URLQueryItem]? {
         switch self {
-        case .searchByLatLon(let latitude, let longitude):
+        case .searchByLatLon(let latitude, let longitude, let pageCount):
+            var page: Int {
+                let page = min(pageCount, 4000/Constants.FlickrParameterValues.PhotosPerPage)
+                return Int(arc4random_uniform(UInt32(page)) + 1)
+            }
             var bboxString : String {
                     let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
                     let minimumLat = max(latitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
@@ -45,14 +49,16 @@ enum FlickrEndpoint: ApiProtocol {
                     let maximumLat = min(latitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
                     return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
             }
-            let parameters = [
+            let parameters : [String: Any] = [
                 Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
                 Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
                 Constants.FlickrParameterKeys.BoundingBox: bboxString,
                 Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
                 Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
                 Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
-                Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
+                Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback,
+                Constants.FlickrParameterKeys.PhotosPerPage: Constants.FlickrParameterValues.PhotosPerPage,
+                Constants.FlickrParameterKeys.Page : "\(page)"
             ]
             var queryItems : [URLQueryItem] = []
             for (key, value) in parameters {
@@ -83,4 +89,15 @@ enum FlickrEndpoint: ApiProtocol {
             return "GET"
         }
     }
+}
+
+func getRandomPageNumber(totalPicsAvailable: Int, maxNumPicsdisplayed: Int) -> Int {
+    let flickrLimit = 4000
+    // Available total number of pics or flickr limit
+    let numberPages = min(totalPicsAvailable, flickrLimit) / maxNumPicsdisplayed
+    let randomPageNum = Int.random(in: 0...numberPages)
+    print("totalPicsAvaible is \(totalPicsAvailable), numPage is \(numberPages)",
+         "randomPageNum is \(randomPageNum)" )
+    
+    return randomPageNum
 }

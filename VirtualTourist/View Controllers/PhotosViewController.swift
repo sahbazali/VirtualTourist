@@ -19,6 +19,8 @@ class PhotosViewController: UIViewController {
     var pin: Pin!
     var fetchedResultsController: NSFetchedResultsController<Photo>!
     var dataController = DataController.shared
+    
+    var pageCount : Int = 0
    
     private var blockOperations: [BlockOperation] = []
     
@@ -72,7 +74,7 @@ class PhotosViewController: UIViewController {
             self.noPhotosFoundLabel.isHidden = true
         }
         self.loadingIndicator.startAnimating()
-        FlickrClient.sharedinstance().searchByLatLon(latitude: lat , longitude: lon) { (result) in
+        FlickrClient.sharedinstance().searchByLatLon(latitude: lat , longitude: lon, pageCount: pageCount) { (result) in
             self.loadingIndicator.stopAnimating()
             switch result {
             case .success(let response):
@@ -82,6 +84,7 @@ class PhotosViewController: UIViewController {
                     }
                 }
                 else {
+                    self.pageCount = response.photos.pages
                     self.storePhotos(response.photos.photo, forPin: pin)
                 }
             case .failure(let error):

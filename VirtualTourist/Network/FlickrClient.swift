@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FlickrClientProtocol {
-    func searchByLatLon(latitude: Double,longitude: Double, completion:@escaping (Result<FlickrSearchPhotosResponseModel, Error>) -> Void)
+    func searchByLatLon(latitude: Double,longitude: Double, pageCount: Int, completion:@escaping (Result<FlickrSearchPhotosResponseModel, Error>) -> Void)
 }
 
 public class FlickrClient: FlickrClientProtocol{
@@ -22,8 +22,8 @@ public class FlickrClient: FlickrClientProtocol{
     
     private init() {}
     
-    public func searchByLatLon(latitude: Double, longitude: Double, completion: @escaping (Result<FlickrSearchPhotosResponseModel, Error>) -> Void) {
-        NetworkManager.request(endpoint: FlickrEndpoint.searchByLatLon(latitude: latitude, longitude: longitude), loginResponseParse: true) { (result: Result<FlickrSearchPhotosResponseModel, Error>) in
+    public func searchByLatLon(latitude: Double, longitude: Double, pageCount: Int, completion: @escaping (Result<FlickrSearchPhotosResponseModel, Error>) -> Void) {
+        NetworkManager.request(endpoint: FlickrEndpoint.searchByLatLon(latitude: latitude, longitude: longitude, pageCount: pageCount), loginResponseParse: true) { (result: Result<FlickrSearchPhotosResponseModel, Error>) in
             switch result {
             case.success(let response):
                 completion(.success(response))
