@@ -72,12 +72,11 @@ class MapPinsViewController: UIViewController {
         annotation.title = ""
         annotation.subtitle = ""
         
-        let newPin = Pin(context: dataController.viewContext)
-        newPin.latitude = annotation.coordinate.latitude
-        newPin.longitude = annotation.coordinate.longitude
+        let pin = Pin(context: dataController.viewContext)
+        pin.latitude = annotation.coordinate.latitude
+        pin.longitude = annotation.coordinate.longitude
         try? dataController.viewContext.save()
-        
-        pins.append(newPin)
+
         self.mapView.addAnnotation(annotation)
     }
 }
