@@ -60,10 +60,12 @@ class MapPinsViewController: UIViewController {
     }
     
     @objc func longPress(_ sender: UILongPressGestureRecognizer){
-        let locationInView = sender.location(in: mapView)
-        let locationOnMap = mapView.convert(locationInView, toCoordinateFrom: mapView)
-            
-        addAnnotation(location: locationOnMap)
+        if sender.state == .began{
+            let locationInView = sender.location(in: mapView)
+            let locationOnMap = mapView.convert(locationInView, toCoordinateFrom: mapView)
+                
+            addAnnotation(location: locationOnMap)
+        }
     }
     
     func addAnnotation(location: CLLocationCoordinate2D){
@@ -101,9 +103,11 @@ extension MapPinsViewController: MKMapViewDelegate{
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        let vc = self.storyboard!.instantiateViewController(withIdentifier: "PhotosViewController") as! PhotosViewController
         let pin = self.pins.first(where: { $0.latitude == view.annotation?.coordinate.latitude && $0.longitude == view.annotation?.coordinate.longitude})
-        vc.pin = pin
-        navigationController?.pushViewController(vc, animated: true)
+        if let pin = pin {
+            let vc = self.storyboard!.instantiateViewController(withIdentifier: "PhotosViewController") as! PhotosViewController
+            vc.pin = pin
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
